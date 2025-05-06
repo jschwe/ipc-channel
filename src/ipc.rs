@@ -250,11 +250,27 @@ where
     T: for<'de> Deserialize<'de> + Serialize,
 {
     /// Blocking receive.
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(
+            skip_all,
+            fields(servo_profiling = true),
+            level = "trace",
+        )
+    )]
     pub fn recv(&self) -> Result<T, IpcError> {
         self.os_receiver.recv()?.to().map_err(IpcError::Bincode)
     }
 
     /// Non-blocking receive
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(
+            skip_all,
+            fields(servo_profiling = true),
+            level = "trace",
+        )
+    )]
     pub fn try_recv(&self) -> Result<T, TryRecvError> {
         self.os_receiver
             .try_recv()?
@@ -269,6 +285,14 @@ where
     /// exceeds the duration that your operating system can represent in milliseconds, this may
     /// block forever. At the time of writing, the smallest duration that may trigger this behavior
     /// is over 24 days.
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(
+            skip_all,
+            fields(servo_profiling = true),
+            level = "trace",
+        )
+    )]
     pub fn try_recv_timeout(&self, duration: Duration) -> Result<T, TryRecvError> {
         self.os_receiver
             .try_recv_timeout(duration)?
@@ -367,6 +391,14 @@ where
     }
 
     /// Send data across the channel to the receiver.
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(
+            skip_all,
+            fields(servo_profiling = true),
+            level = "trace",
+        )
+    )]
     pub fn send(&self, data: T) -> Result<(), bincode::Error> {
         let mut bytes = Vec::with_capacity(4096);
         OS_IPC_CHANNELS_FOR_SERIALIZATION.with(|os_ipc_channels_for_serialization| {
@@ -408,6 +440,14 @@ where
 }
 
 impl<'de, T> Deserialize<'de> for IpcSender<T> {
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(
+            skip_all,
+            fields(servo_profiling = true),
+            level = "trace",
+        )
+    )]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -501,6 +541,14 @@ impl IpcReceiverSet {
     /// received or a channel closed event.
     ///
     /// [IpcReceiver]: struct.IpcReceiver.html
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(
+            skip_all,
+            fields(servo_profiling = true),
+            level = "trace",
+        )
+    )]
     pub fn select(&mut self) -> Result<Vec<IpcSelectionResult>, io::Error> {
         let results = self.os_receiver_set.select()?;
         Ok(results
@@ -568,6 +616,14 @@ impl IpcSharedMemory {
 }
 
 impl<'de> Deserialize<'de> for IpcSharedMemory {
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(
+            skip_all,
+            fields(servo_profiling = true),
+            level = "trace",
+        )
+    )]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -595,6 +651,14 @@ impl<'de> Deserialize<'de> for IpcSharedMemory {
 }
 
 impl Serialize for IpcSharedMemory {
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(
+            skip_all,
+            fields(servo_profiling = true),
+            level = "trace",
+        )
+    )]
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -729,6 +793,14 @@ impl IpcMessage {
     }
 
     /// Deserialize the raw data in the contained message into the inferred type.
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(
+            skip_all,
+            fields(servo_profiling = true),
+            level = "trace",
+        )
+    )]
     pub fn to<T>(mut self) -> Result<T, bincode::Error>
     where
         T: for<'de> Deserialize<'de> + Serialize,
@@ -878,6 +950,14 @@ impl<T> IpcOneShotServer<T>
 where
     T: for<'de> Deserialize<'de> + Serialize,
 {
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(
+            skip_all,
+            fields(servo_profiling = true),
+            level = "trace",
+        )
+    )]
     pub fn new() -> Result<(IpcOneShotServer<T>, String), io::Error> {
         let (os_server, name) = OsIpcOneShotServer::new()?;
         Ok((
@@ -889,6 +969,14 @@ where
         ))
     }
 
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(
+            skip_all,
+            fields(servo_profiling = true),
+            level = "trace",
+        )
+    )]
     pub fn accept(self) -> Result<(IpcReceiver<T>, T), bincode::Error> {
         let (os_receiver, ipc_message) = self.os_server.accept()?;
         Ok((
