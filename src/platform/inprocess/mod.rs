@@ -17,7 +17,6 @@ use std::error::Error as StdError;
 use std::fmt::{self, Debug, Formatter};
 use std::io;
 use std::ops::{Deref, RangeFrom};
-use std::ptr::eq;
 use std::slice;
 use std::sync::{Arc, LazyLock, Mutex};
 use std::time::Duration;
