@@ -67,13 +67,6 @@ pub struct OsIpcReceiver {
     receiver: RefCell<Option<crossbeam_channel::Receiver<ChannelMessage>>>,
 }
 
-impl PartialEq for OsIpcReceiver {
-    fn eq(&self, other: &OsIpcReceiver) -> bool {
-        self.receiver.borrow().as_ref().map(|rx| rx as *const _)
-            == other.receiver.borrow().as_ref().map(|rx| rx as *const _)
-    }
-}
-
 impl OsIpcReceiver {
     fn new(receiver: Receiver<ChannelMessage>) -> OsIpcReceiver {
         OsIpcReceiver {
